@@ -1,0 +1,6 @@
+int function( int x,int y)
+{ 
+  x = x+y;
+  printf("%d=number",x);
+  return x; 
+}

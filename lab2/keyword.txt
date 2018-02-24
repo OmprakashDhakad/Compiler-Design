@@ -1,0 +1,9 @@
+8
+for
+while
+if
+else
+goto
+do
+int
+return
