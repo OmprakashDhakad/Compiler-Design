@@ -1,3 +1,9 @@
+/*
+   NAME  - OMPRAKASH
+   ID    - 2015KUCP1028
+   Assumption in augmented grammar S' is A SO don't take A in grammar use another symbol
+
+*/
 #include<bits/stdc++.h>
 #include <vector>
 using namespace std;
@@ -6,7 +12,8 @@ pair<char,string> x;
 map<char, vector<string> > m;
 vector< pair<char, string> > aug;
 vector< vector< pair<char, string> > > items;
- 
+vector< vector< pair<char , string> > > itemss;
+
 map<char,vector<string> >::iterator it;
 map<char,vector<char> >::iterator itr;
 vector<string> v;
@@ -14,6 +21,7 @@ vector<char> ve;
 vector<char> nt;
 char startsymbol;
 int p=0,q=0,r=0;
+int tim=1;
 
 void makeaugmented()
 {
@@ -59,25 +67,6 @@ void display1()
 }
 
 
-void display2(map<char, vector<char> > ma)
-{
-	for(itr=ma.begin();itr!=ma.end();itr++)
-	{
-		char c = itr->first;
-		cout<<c<<" : { ";
-		ve = itr->second;
-		for(uint i=0;i<ve.size();i++)
-		{
-			if(i!=0)
-			{
-				cout<<" , ";
-			}
-			cout<<ve[i];
-		}
-		cout<<" }"<<endl;
-	}
-}
-
 int isnonterminal(char ch)
 {
   if(ch >= 65 && ch <= 90)
@@ -98,65 +87,51 @@ int isExist(vector<pair<char, string> > vec,char first,string str)
   return 0;
 }
 
-/*void makeclosures(vector<pair<char, string> > vec)
+int isExist2(vector<pair<char, string> > vec)
 {
+  int count ;
   
-  // vector<pair<char, string> > vec;
-  //pair<char, string> r ;
-  
-  for(uint i=0;i<vec.size();i++)
+  for(uint i=0;i<items.size();i++)
   {
-     if(vec[i].second.length()>1)
-     {
-       string str = vec[i].second;
-       int x = str.find('.');
-       str.substr(0,x);
-       
-     }
+    
+    if(vec.size()==items[i].size())
+    {
+        count =0;
+		for(uint j=0;j<items[i].size();j++)
+		{
+		    
+			if(vec[j].first==items[i][j].first && vec[j].second==items[i][j].second)
+			{
+			   count++;
+			}
+			if(count==(int)vec.size())
+			{
+			  return 1;
+			}
+		}
+	}
+	
   }
-
+  return 0;
 }
-*/
 
-string searchpair(vector<pair<char, string> > vec,char ch)
+vector< pair <char,string> > searchpair(vector< pair <char,string> > vec,char ch)
 {
-  int flag;
+  
   for(uint i=0;i<aug.size();i++)
   {
-    //cout << aug[i].first << "----" << aug[i].second << endl;
     if(ch==aug[i].first)
     {
-      // cout << "ch  = " << ch << endl;
-       for(uint j=0;j<vec.size();j++)
+       if(isExist(vec,aug[i].first,aug[i].second)==0)
        {
-          flag =0 ;
-          //cout << "Same  = ";
-          if(vec[j].first==aug[i].first && vec[j].second==aug[i].second)
-          {
-            //cout << "hai " << endl;
-            flag = 1;
-            break;
-          }
-          else
-          {
-            //cout << " nhi " << endl;
-          }
+         vec.push_back(make_pair(aug[i].first,aug[i].second));
        }
-       if(flag==1)
-       {
-         continue;
-       }
-       else
-	   {
-	     //cout  << "return should be  ="<< aug[i].second << endl; 
-	     return aug[i].second;
-	   }
     }
   }
-  return "abc";
+  return vec;
 }
 
-void makeitems(char first,string second)
+void makeitemI0(char first,string second)
 {
   vector< pair <char,string> > vec ;
   vec.push_back(make_pair(first,second));
@@ -168,25 +143,73 @@ void makeitems(char first,string second)
     {
        if(isnonterminal((vec[i].second)[x+1])==1)
 		{
-		   string str = searchpair(vec,(vec[i].second)[x+1]);
-		   //cout  << "str =  " << str << endl;
-		   if(str!="abc" && isExist(vec,(vec[i].second)[x+1],str)==0)
-		   {
-		      //cout << "content pushed " << endl;
-		      vec.push_back(make_pair((vec[i].second)[x+1],str));
-		   }
+		   vec = searchpair(vec,(vec[i].second)[x+1]);
+		   
 		}
+		
 		
     }
   }
-   cout << "I0 items "<< endl; 
-   for(uint j=0;j<vec.size();j++)
-   {
-     cout << vec[j].first << "->" << vec[j].second << endl;
-   }
+    
+    items.push_back(vec);
+   
+}
+
+
+void makeclosures(vector<pair<char, string> > vec)
+{
+
+  set<char> se;
+  se.clear();
+  for(uint i=0;i<vec.size();i++)
+  {
+    int x = vec[i].second.find('.');
+    if(x!=-1 && x+1!=(int)vec[i].second.length())
+    {
+      se.insert((vec[i].second)[x+1]);
+    }
+   
+  }
+  set <char> :: iterator itr;
   
-  items.push_back(vec);
-  
+  for(itr=se.begin();itr!=se.end();itr++)
+  {
+     char ch = *itr;
+     vector< pair <char,string> > vi;
+     
+     for(uint i=0;i<vec.size();i++)
+     {
+        int y = vec[i].second.find('.');
+        if(y!=-1 && y+1!=(int)vec[i].second.length())
+		{
+		   
+		   if(ch == (vec[i].second)[y+1])
+		   {
+		       
+		       string str1 = vec[i].second;
+			   char c = str1[y] ;
+			   str1[y] = str1[y+1];
+			   str1[y+1] = c;
+			   
+			   vec[i].second = str1;
+			   
+			   vi.push_back(make_pair(vec[i].first,str1));
+			   
+			   if(isnonterminal(str1[y+2])==1)
+		       {
+		          vi = searchpair(vi,str1[y+2]);
+		       }
+		   }
+		}
+		
+      
+     }
+     if(isExist2(vi)==0)
+     {
+        items.push_back(vi);
+     }
+  }
+
 }
 
 
@@ -232,8 +255,23 @@ int main()
   m['A'].push_back(strtsym);
   makeaugmented();
   display1();
-  makeitems(aug[0].first,aug[0].second);
+  makeitemI0(aug[0].first,aug[0].second);
   
+  cout << endl;
+  for(uint i=0;i<items.size();i++)
+  {
+      makeclosures(items[i]);
+  } 
   
+  for(uint i=0;i<items.size();i++)
+  {
+    cout << "-------item I"<<i<<"-----"<<endl;
+    for(uint j=0;j<items[i].size();j++)
+    {
+      cout <<items[i][j].first << "->" << items[i][j].second << endl;  
+    }
+  }
+  
+ 
   return 0;
 }
